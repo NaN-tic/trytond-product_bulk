@@ -19,12 +19,12 @@ class TemplateProductPackaging(ModelSQL, ModelView):
     "Template - Product Packaging"
     __name__ = 'product.template-product.packaging'
     _rec_name = 'packaging_product'
-    packaging_product = fields.Many2One('product.template', 'Product',
+    packaging_product = fields.Many2One('product.template', 'Packaging Product',
         required=True, ondelete='CASCADE', domain=[
             ('packaging', '=', True),
             ])
     product = fields.Many2One('product.template', 'Product', required=True)
-    output_product = fields.Many2One('product.template', 'Output Product',
+    packaged_product = fields.Many2One('product.template', 'Packaged Product',
         states = {
             'readonly': True,
             },
@@ -155,7 +155,7 @@ class Template(metaclass=PoolMeta):
 
         for bulk_product in products:
             for package_product in bulk_product.packaging_products:
-                if package_product.output_product:
+                if package_product.packaged_product:
                     continue
 
                 new_code = ((bulk_product.products[0].code
@@ -198,7 +198,7 @@ class Template(metaclass=PoolMeta):
                 output_template.save()
 
                 output_product, = output_template.products
-                package_product.output_product = output_template
+                package_product.packaged_product = output_template
                 output_to_save.append(package_product)
 
                 bom = Bom(name=new_name)
