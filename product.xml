@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!-- The COPYRIGHT file at the top level of this repository contains the full
+     copyright notices and license terms. -->
+<tryton>
+    <data>
+        <!-- product.template -->
+        <record model="ir.ui.view" id="template_view_form">
+            <field name="model">product.template</field>
+            <field name="inherit" ref="product.template_view_form"/>
+            <field name="name">template_form</field>
+        </record>
+
+        <!-- relate bulk products -->
+        <record model="ir.action.act_window" id="act_bulk_product_related">
+            <field name="name">Bulk products</field>
+            <field name="res_model">product.product</field>
+            <field name="domain" eval="[('bulk_product.id', '=', Eval('active_id'))]" pyson="1"/>
+        </record>
+        <record model="ir.action.keyword" id="act_bulk_product_keyword">
+            <field name="keyword">form_relate</field>
+            <field name="model">product.product,-1</field>
+            <field name="action" ref="act_bulk_product_related"/>
+        </record>
+        <record model="ir.action.act_window" id="act_bulk_product_related_2">
+            <field name="name">Bulk products</field>
+            <field name="res_model">product.template</field>
+            <field name="domain" eval="[('bulk_product.id', '=', Eval('active_id'))]" pyson="1"/>
+        </record>
+        <record model="ir.action.keyword" id="act_bulk_product_keyword_2">
+            <field name="keyword">form_relate</field>
+            <field name="model">product.template,-1</field>
+            <field name="action" ref="act_bulk_product_related_2"/>
+        </record>
+
+
+        <record model="ir.ui.view" id="product_bulk_view_list">
+            <field name="model">product.template</field>
+            <field name="type">tree</field>
+            <field name="name">product_bulk_list</field>
+        </record>
+
+        <record model="ir.action.act_window" id="act_product_bulk_stock">
+            <field name="name">Bulk Products</field>
+            <field name="res_model">product.template</field>
+            <field name="domain" eval="[('bulk_type', '=', True)]" pyson="1"/>
+        </record>
+
+        <record model="ir.action.act_window.view" id="act_template_list_view">
+            <field name="act_window" ref="act_product_bulk_stock"/>
+            <field name="sequence" eval="10"/>
+            <field name="view" ref="product_bulk_view_list"/>
+        </record>
+
+        <menuitem parent="product.menu_template" sequence="1" id="menu_product_bulk_stock"
+            action="act_product_bulk_stock" icon="tryton-list"/>
+
+        <record model="ir.model.access" id="access_product_bulk_stock">
+            <field name="model" search="[('model', '=', 'product.template')]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_delete" eval="False"/>
+        </record>
+        <record model="ir.model.access" id="access_product_bulk_stock_admin">
+            <field name="model" search="[('model', '=', 'product.template')]"/>
+            <field name="group" ref="product.group_product_admin"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_delete" eval="True"/>
+        </record>
+    </data>
+</tryton>

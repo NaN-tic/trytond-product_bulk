@@ -1,0 +1,79 @@
+#
+msgid ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
+
+msgctxt "field:product.product,bulk_product:"
+msgid "Bulk Product"
+msgstr "Producto granel"
+
+msgctxt "field:product.product,bulk_quantity:"
+msgid "Bulk Quantity"
+msgstr "Cantidad granel"
+
+msgctxt "field:product.product,bulk_type:"
+msgid "Bulk"
+msgstr "Granel"
+
+msgctxt "field:product.product,density:"
+msgid "Density (kg/m3)"
+msgstr "Densidad (kg/m3)"
+
+msgctxt "field:product.template,bulk_product:"
+msgid "Bulk Product"
+msgstr "Producto granel"
+
+msgctxt "field:product.template,bulk_quantity:"
+msgid "Bulk Quantity"
+msgstr "Cantidad granel"
+
+msgctxt "field:product.template,bulk_type:"
+msgid "Bulk"
+msgstr "Granel"
+
+msgctxt "field:product.template,density:"
+msgid "Density (kg/m3)"
+msgstr "Densidad (kg/m3)"
+
+msgctxt "field:stock.move,bulk_product:"
+msgid "Bulk Product"
+msgstr "Producto granel"
+
+msgctxt "help:product.product,bulk_quantity:"
+msgid "The amount of bulk stock in the location."
+msgstr "La cantidad de existencias en granel en la ubicación."
+
+msgctxt "help:product.template,bulk_quantity:"
+msgid "The amount of bulk stock in the location."
+msgstr "La cantidad de existencias en granel en la ubicación."
+
+msgctxt "model:ir.action,name:act_bulk_product_related"
+msgid "Bulk products"
+msgstr "Productos granel"
+
+msgctxt "model:ir.action,name:act_bulk_product_related_2"
+msgid "Bulk products"
+msgstr "Productos granel"
+
+msgctxt "model:ir.action,name:act_product_bulk_stock"
+msgid "Bulk Products"
+msgstr "Productos granel"
+
+msgctxt "model:ir.message,text:msg_product_bulk_product_has_stock"
+msgid ""
+"You cannot change the value of bulk product field of product which is "
+"associated to stock moves."
+msgstr ""
+"No puede cambiar el valor del campo Producto granel de un producto asociado "
+"con movimientos de existencias."
+
+msgctxt "model:ir.message,text:msg_product_bulk_type_has_stock"
+msgid ""
+"You cannot change the value of bulk type field of product which is "
+"associated to stock moves."
+msgstr ""
+"No puede cambiar el valor del campo Tipo granel de un producto asociado con "
+"movimientos de existencias."
+
+msgctxt "model:ir.ui.menu,name:menu_product_bulk_stock"
+msgid "Bulk Products"
+msgstr "Productos granel"
