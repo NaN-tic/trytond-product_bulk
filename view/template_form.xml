@@ -29,7 +29,7 @@
     </xpath>
     <xpath expr="/form/notebook" position="inside">
         <page id="packaging_products" string="Packaging Products">
-            <field name="packaging_products"/>
+            <field name="packaging_products"  colspan="4"/>
             <newline/>
             <button name="create_packaging_products"
                 string="Create packaging products" colspan="2"/>
