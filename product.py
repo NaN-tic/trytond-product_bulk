@@ -20,9 +20,13 @@ class TemplateProductPackaging(ModelSQL, ModelView):
     __name__ = 'product.template-product.packaging'
     _rec_name = 'packaging_product'
     packaging_product = fields.Many2One('product.template', 'Packaging Product',
-        required=True, ondelete='CASCADE', domain=[
+        required=True, ondelete='CASCADE',
+        states = {
+            'readonly': Bool(Eval('packaged_product')),
+            },
+        domain=[
             ('packaging', '=', True),
-            ])
+        ])
     product = fields.Many2One('product.template', 'Product', required=True)
     packaged_product = fields.Many2One('product.template', 'Packaged Product',
         states = {
@@ -42,8 +46,7 @@ class Template(metaclass=PoolMeta):
             ('bulk_type', '=', True),
             ],
         states= {
-            'readonly': (~Eval('active', True) | Eval('bulk_type') == True |
-            Eval('packaging') == True),
+            'readonly': (~Eval('active', True) | Eval('bulk_type') == True),
             }, depends=DEPENDS)
     bulk_quantity = fields.Function(fields.Float('Bulk Quantity',
         help="The amount of bulk stock in the location."),
@@ -197,7 +200,11 @@ class Template(metaclass=PoolMeta):
                 output_template.capacity = package_product.packaging_product.capacity
                 output_template.save()
 
-                output_product, = output_template.products
+                output_product = Product()
+                output_product.template = output_template
+                output_product.save()
+
+
                 package_product.packaged_product = output_template
                 output_to_save.append(package_product)
 
@@ -281,7 +288,7 @@ class Product(metaclass=PoolMeta):
         sum_ = []
         for product in output_products:
             res[product.bulk_product.id] += (bulk_quantity.get(product.id,0)
-                * product.netweight)
+                * product.netweight if product.netweight else 0.0)
 
         return res
 
