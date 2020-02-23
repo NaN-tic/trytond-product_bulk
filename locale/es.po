@@ -30,6 +30,10 @@ msgctxt "field:product.product,density:"
 msgid "Density (kg/m3)"
 msgstr "Densidad (kg/m3)"
 
+msgctxt "field:product.product,extra_products:"
+msgid "Extra Products"
+msgstr "Productos adicionales"
+
 msgctxt "field:product.product,lot_sequence:"
 msgid "Lot Sequence"
 msgstr "Secuencia de lote"
@@ -86,6 +90,10 @@ msgctxt "field:product.template,density:"
 msgid "Density (kg/m3)"
 msgstr "Densidad (kg/m3)"
 
+msgctxt "field:product.template,extra_products:"
+msgid "Extra Products"
+msgstr "Productos adicionales"
+
 msgctxt "field:product.template,netweight:"
 msgid "Net Weight"
 msgstr "Peso neto"
@@ -105,6 +113,22 @@ msgstr "Envase"
 msgctxt "field:product.template,packaging_products:"
 msgid "Packaging Products"
 msgstr "Envases de producto"
+
+msgctxt "field:product.template-extra.product,extra_product:"
+msgid "Extra Product"
+msgstr "Producto adicional"
+
+msgctxt "field:product.template-extra.product,product:"
+msgid "Product"
+msgstr "Producto"
+
+msgctxt "field:product.template-extra.product,quantity:"
+msgid "Quantity"
+msgstr "Cantidad"
+
+msgctxt "field:product.template-extra.product,unit_digits:"
+msgid "Unit Digits"
+msgstr "Dígitos unidad"
 
 msgctxt "field:product.template-product.packaging,packaged_product:"
 msgid "Packaged Product"
@@ -161,6 +185,10 @@ msgstr ""
 msgctxt "model:ir.ui.menu,name:menu_product_bulk_stock"
 msgid "Bulk Products"
 msgstr "Productos granel"
+
+msgctxt "model:product.template-extra.product,name:"
+msgid "Template - Product Packaging"
+msgstr "Plantilla - Envases producto"
 
 msgctxt "model:product.template-product.packaging,name:"
 msgid "Template - Product Packaging"
