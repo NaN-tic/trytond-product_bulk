@@ -9,7 +9,8 @@ from trytond.wizard import (Wizard, StateAction, StateView, StateTransition,
     Button)
 from trytond.exceptions import UserWarning
 
-__all__ = ['Template', 'Product', 'TemplateProductPackaging']
+__all__ = ['Template', 'Product', 'TemplateProductPackaging',
+            'ExtraProductPackaging']
 
 from trytond.modules.product.product import STATES, DEPENDS
 
@@ -33,6 +34,28 @@ class TemplateProductPackaging(ModelSQL, ModelView):
             'readonly': True,
             },
         )
+
+class ExtraProductPackaging(ModelSQL, ModelView):
+    "Template - Product Packaging"
+    __name__ = 'product.template-extra.product'
+    _rec_name = 'packaging_product'
+    extra_product = fields.Many2One('product.template', 'Extra Product',
+        required=True, ondelete='CASCADE',
+        states = {
+            'readonly': Bool(Eval('packaged_product')),
+            })
+    product = fields.Many2One('product.template', 'Product', required=True)
+    unit_digits = fields.Function(fields.Integer('Unit Digits'),
+        'on_change_with_unit_digits')
+    quantity = fields.Float('Quantity',
+        digits=(16, Eval('unit_digits', 2)),
+        depends=['unit_digits'])
+
+    @fields.depends('product')
+    def on_change_with_unit_digits(self, name=None):
+        if self.extra_product.default_uom:
+            return self.extra_product.default_uom.digits
+        return 2
 
 
 class Template(metaclass=PoolMeta):
@@ -86,6 +109,11 @@ class Template(metaclass=PoolMeta):
         depends=['type', 'netweight'])
     netweight_digits = fields.Function(fields.Integer('Net Weight Digits'),
         'on_change_with_netweight_digits')
+    extra_products = fields.One2Many('product.template-extra.product',
+        'product', 'Extra Products',
+        states = {
+            'readonly': (~Eval('active', True) | Eval('bulk_type') != True),
+            })
 
     def sum_product(self, name):
         if name in ('bulk_quantity'):
@@ -155,6 +183,7 @@ class Template(metaclass=PoolMeta):
         product_to_save = []
         bom_to_save = []
         output_to_save = []
+        inputs = []
 
         for bulk_product in products:
             for package_product in bulk_product.packaging_products:
@@ -214,17 +243,30 @@ class Template(metaclass=PoolMeta):
                     product=bulk_product.products[0].id,
                     uom=bulk_product.default_uom,
                     quantity=netweight)
+                inputs.append(bulk_input)
                 package_input = BOMInput(
                     bom=bom,
                     product=package_product.packaging_product.id,
                     uom=package_product.packaging_product.default_uom,
                     quantity=1.0)
+                inputs.append(package_input)
+
+                if bulk_product.extra_products:
+                    for extra in bulk_product.extra_products:
+                        extra_input = BOMInput(
+                            bom=bom,
+                            product=extra.extra_product.products[0].id,
+                            uom=extra.extra_product.default_uom,
+                            quantity=extra.quantity)
+                        inputs.append(extra_input)
+
                 output = BOMOutput(
                     bom=bom,
                     product=output_product.id,
                     uom=uom_unit,
                     quantity=1.0)
-                bom.inputs = [bulk_input, package_input]
+
+                bom.inputs = inputs
                 bom.outputs = [output]
                 bom_to_save.append(bom)
 

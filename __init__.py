@@ -9,6 +9,7 @@ module = 'product_bulk'
 
 def register():
     Pool.register(
+        product.ExtraProductPackaging,
         product.Product,
         product.TemplateProductPackaging,
         product.Template,
