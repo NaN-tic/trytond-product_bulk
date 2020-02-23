@@ -73,8 +73,12 @@
         <record model="ir.ui.view" id="product_packaging_view_list">
             <field name="model">product.template-product.packaging</field>
             <field name="type">tree</field>
-            <field name="priority" eval="20"/>
             <field name="name">product_packaging_list</field>
+        </record>
+        <record model="ir.ui.view" id="product_extra_packaging_view_list">
+            <field name="model">product.template-extra.product</field>
+            <field name="type">tree</field>
+            <field name="name">product_extra_packaging_list</field>
         </record>
     </data>
 </tryton>
