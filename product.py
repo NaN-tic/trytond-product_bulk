@@ -183,10 +183,10 @@ class Template(metaclass=PoolMeta):
         product_to_save = []
         bom_to_save = []
         output_to_save = []
-        inputs = []
 
         for bulk_product in products:
             for package_product in bulk_product.packaging_products:
+                inputs = []
                 if package_product.packaged_product:
                     continue
 
