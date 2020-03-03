@@ -32,6 +32,11 @@
             <field name="action" ref="act_bulk_product_related_2"/>
         </record>
 
+        <record model="ir.model.button" id="create_packaging_products_button">
+            <field name="name">create_packaging_products</field>
+            <field name="string">Create packaging products</field>
+            <field name="model" search="[('model', '=', 'product.template')]"/>
+        </record>
 
         <record model="ir.ui.view" id="product_bulk_view_list">
             <field name="model">product.template</field>
