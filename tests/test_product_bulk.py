@@ -2,19 +2,24 @@
 # The COPYRIGHT file at the top level of this repository contains
 # the full copyright notices and license terms.
 import unittest
-
-
+import doctest
+import trytond.tests.test_tryton
 from trytond.tests.test_tryton import ModuleTestCase
-from trytond.tests.test_tryton import suite as test_suite
+from trytond.tests.test_tryton import doctest_teardown
+from trytond.tests.test_tryton import doctest_checker
 
 
-class ProductBulkTestCase(ModuleTestCase):
+class TestCase(ModuleTestCase):
     'Test Product Bulk module'
     module = 'product_bulk'
 
 
 def suite():
-    suite = test_suite()
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(
-            ProductBulkTestCase))
+    suite = trytond.tests.test_tryton.suite()
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestCase))
+    suite.addTests(doctest.DocFileSuite(
+            'scenario_product_bulk.rst',
+            tearDown=doctest_teardown, encoding='utf-8',
+            checker=doctest_checker,
+            optionflags=doctest.REPORT_ONLY_FIRST_FAILURE))
     return suite
