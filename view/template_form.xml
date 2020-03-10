@@ -11,6 +11,7 @@
         <newline/>
         <label name="bulk_product"/>
         <field name="bulk_product"/>
+        <newline/>
     </xpath>
     <xpath expr="/form/notebook/page[@id='general']/group[@id='checkboxes']"
         position="inside">
