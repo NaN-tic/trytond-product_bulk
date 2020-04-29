@@ -5,10 +5,6 @@ from trytond.pool import PoolMeta, Pool
 from trytond.pyson import Eval, Bool, Id
 from trytond.transaction import Transaction
 from decimal import Decimal
-from trytond.wizard import (Wizard, StateAction, StateView, StateTransition,
-    Button)
-from trytond.exceptions import UserWarning
-from trytond.modules.product.product import STATES, DEPENDS
 
 __all__ = ['Template', 'Product', 'TemplateProductPackaging',
             'ExtraProductPackaging']
@@ -50,7 +46,6 @@ class ExtraProductPackaging(ModelSQL, ModelView):
         digits=(16, Eval('unit_digits', 2)),
         depends=['unit_digits'])
 
-
     @fields.depends('extra_product')
     def on_change_with_unit_digits(self, name=None):
         if self.extra_product:
@@ -62,20 +57,20 @@ class Template(metaclass=PoolMeta):
     __name__ = 'product.template'
 
     density = fields.Float('Density (kg/m3)',
-        digits=(16, Eval('weight_digits', 2)), states=STATES,
-        depends=DEPENDS + ['weight_digits'])
-    bulk_type = fields.Boolean('Bulk', states=STATES, depends=DEPENDS)
+        digits=(16, Eval('weight_digits', 2)),
+        depends=['weight_digits'])
+    bulk_type = fields.Boolean('Bulk')
     bulk_product = fields.Many2One('product.product', 'Bulk Product',
         domain=[
             ('bulk_type', '=', True),
             ],
         states= {
             'readonly': (~Eval('active', True) | Eval('bulk_type') == True),
-            }, depends=DEPENDS)
+            }, depends=['bulk_type'])
     bulk_quantity = fields.Function(fields.Float('Bulk Quantity',
         help="The amount of bulk stock in the location."),
         'sum_product')
-    packaging = fields.Boolean('Packaging', states=STATES, depends=DEPENDS)
+    packaging = fields.Boolean('Packaging')
     packaging_products = fields.One2Many('product.template-product.packaging',
         'product', 'Packaging Products',
         states = {
@@ -293,7 +288,6 @@ class Product(metaclass=PoolMeta):
     @classmethod
     def get_bulk_quantity(cls, products, name):
         pool = Pool()
-        Moves = pool.get('stock.move')
         Location = pool.get('stock.location')
         Product = pool.get('product.product')
         Date = pool.get('ir.date')
@@ -328,11 +322,9 @@ class Product(metaclass=PoolMeta):
                 grouping=('product',) , grouping_filter=(products_ids,))
 
         res.update(quantity)
-        sum_ = []
         for product in output_products:
             res[product.bulk_product.id] += (bulk_quantity.get(product.id,0)
                 * product.netweight if product.netweight else 0.0)
-
         return res
 
     @classmethod
