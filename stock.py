@@ -2,11 +2,9 @@
 # copyright notices and license terms.
 from trytond.model import fields
 from trytond.pool import PoolMeta, Pool
-from trytond.pyson import Eval, Bool
+from trytond.modules.stock.move import STATES, DEPENDS
 
 __all__ = ['StockMove']
-
-from trytond.modules.stock.move import STATES, DEPENDS
 
 
 class StockMove(metaclass=PoolMeta):
