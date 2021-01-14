@@ -115,8 +115,8 @@ class Template(metaclass=PoolMeta):
     def __setup__(cls):
         super(Template, cls).__setup__()
         cls._modify_no_move += [
-            ('bulk_type', 'product.msg_product_bulk_type_has_stock'),
-            ('bulk_product', 'product.msg_product_bulk_product_has_stock'),
+            ('bulk_type', 'product_bulk.msg_product_bulk_type_has_stock'),
+            ('bulk_product', 'product_bulk.msg_product_bulk_product_has_stock'),
             ]
         cls._buttons.update({
                 'create_packaging_products': {
