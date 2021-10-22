@@ -126,9 +126,9 @@ msgctxt "field:product.template-extra.product,quantity:"
 msgid "Quantity"
 msgstr "Quantitat"
 
-msgctxt "field:product.template-extra.product,unit_digits:"
-msgid "Unit Digits"
-msgstr "Decimals de la unitat"
+msgctxt "field:product.template-extra.product,unit:"
+msgid "Unit"
+msgstr "Unitat"
 
 msgctxt "field:product.template-product.packaging,packaged_product:"
 msgid "Packaged Product"

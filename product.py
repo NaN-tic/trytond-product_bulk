@@ -40,25 +40,20 @@ class ExtraProductPackaging(ModelSQL, ModelView):
             'readonly': Bool(Eval('packaged_product')),
             })
     product = fields.Many2One('product.template', 'Product', required=True)
-    unit_digits = fields.Function(fields.Integer('Unit Digits'),
-        'on_change_with_unit_digits')
-    quantity = fields.Float('Quantity',
-        digits=(16, Eval('unit_digits', 2)),
-        depends=['unit_digits'])
+    unit = fields.Function(fields.Many2One('product.uom', 'Unit'),
+        'on_change_with_unit')
+    quantity = fields.Float('Quantity', digits='unit')
 
     @fields.depends('extra_product')
-    def on_change_with_unit_digits(self, name=None):
+    def on_change_with_unit(self, name=None):
         if self.extra_product:
-            return self.extra_product.default_uom.digits
-        return 2
+            return self.extra_product.default_uom.id
 
 
 class Template(metaclass=PoolMeta):
     __name__ = 'product.template'
 
-    density = fields.Float('Density (kg/m3)',
-        digits=(16, Eval('weight_digits', 2)),
-        depends=['weight_digits'])
+    density = fields.Float('Density (kg/m3)', digits='weight_uom')
     bulk_type = fields.Boolean('Bulk')
     bulk_product = fields.Many2One('product.product', 'Bulk Product',
         domain=[
