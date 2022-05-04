@@ -2,6 +2,7 @@
 # copyright notices and license terms.
 from trytond.model import fields
 from trytond.pool import PoolMeta, Pool
+from trytond.pyson import Eval
 from trytond.modules.stock.move import STATES, DEPENDS
 
 __all__ = ['StockMove']
@@ -10,8 +11,10 @@ __all__ = ['StockMove']
 class StockMove(metaclass=PoolMeta):
     __name__ = 'stock.move'
 
-    bulk_product = fields.Many2One('product.product', 'Bulk Product',
-        states=STATES, depends=DEPENDS)
+    bulk_product = fields.Many2One('product.product', 'Bulk Product', context={
+            'company': Eval('company'),
+            },
+        states=STATES, depends=DEPENDS + ['company'])
 
     # TODO: check if is necessary
     @classmethod
