@@ -11,7 +11,7 @@ def register():
     Pool.register(
         product.ExtraProductPackaging,
         product.Product,
-        product.TemplateProductPackaging,
+        product.ProductProductPackaging,
         product.Template,
         stock.StockMove,
         module=module, type_='model')

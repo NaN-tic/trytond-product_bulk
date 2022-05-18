@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!-- The COPYRIGHT file at the top level of this repository contains the full
+     copyright notices and license terms. -->
+<data>
+    <xpath expr="/form/notebook/page[@id='general']/field[@name='forecast_quantity']"
+            position="after">
+        <label name="bulk_product"/>
+        <field name="bulk_product"/>
+        <label name="bulk_quantity"/>
+        <field name="bulk_quantity"/>
+        <newline/>
+    </xpath>
+    <xpath expr="/form/notebook/page[@id='general']/group[@id='checkboxes']"
+        position="inside">
+        <label name="packaging"/>
+        <field name="packaging" xexpand="0" width="25"/>
+    </xpath>
+    <xpath expr="/form/notebook/page[@id='measurements']" position="inside">
+        <label name="netweight"/>
+        <field name="netweight"/>
+        <field name="netweight_uom"/>
+        <label name="capacity_pkg"/>
+        <field name="capacity_pkg"/>
+        <field name="capacity_uom"/>
+    </xpath>
+    <xpath expr="/form/notebook" position="inside">
+        <page id="packaging_products" string="Packaging Products">
+            <field name="packaging_products" colspan="4"/>
+            <newline/>
+            <field name="extra_products" colspan="4"/>
+            <newline/>
+            <button name="create_packaging_products"
+                string="Create packaging products" colspan="2"/>
+        </page>
+    </xpath>
+</data>

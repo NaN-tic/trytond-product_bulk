@@ -6,16 +6,13 @@ from trytond.pyson import Eval, Bool, Id
 from trytond.transaction import Transaction
 from decimal import Decimal
 
-__all__ = ['Template', 'Product', 'TemplateProductPackaging',
-            'ExtraProductPackaging']
-
 NON_MEASURABLE = ['service']
 
 
-class TemplateProductPackaging(ModelSQL, ModelView):
-    "Template - Product Packaging"
-    __name__ = 'product.template-product.packaging'
-    packaging_product = fields.Many2One('product.template', 'Packaging Product',
+class ProductProductPackaging(ModelSQL, ModelView):
+    "Product - Product Packaging"
+    __name__ = 'product.product-product.packaging'
+    packaging_product = fields.Many2One('product.product', 'Packaging Product',
         required=True, ondelete='CASCADE',
         states = {
             'readonly': Bool(Eval('packaged_product')),
@@ -23,23 +20,22 @@ class TemplateProductPackaging(ModelSQL, ModelView):
         domain=[
             ('packaging', '=', True),
         ])
-    product = fields.Many2One('product.template', 'Product', required=True)
+    product = fields.Many2One('product.product', 'Product', required=True)
     packaged_product = fields.Many2One('product.template', 'Packaged Product',
         states = {
             'readonly': True,
             },
         )
 
-
 class ExtraProductPackaging(ModelSQL, ModelView):
     "Template - Product Packaging"
-    __name__ = 'product.template-extra.product'
-    extra_product = fields.Many2One('product.template', 'Extra Product',
+    __name__ = 'product.product-extra.product'
+    extra_product = fields.Many2One('product.product', 'Extra Product',
         required=True, ondelete='CASCADE',
         states = {
             'readonly': Bool(Eval('packaged_product')),
             })
-    product = fields.Many2One('product.template', 'Product', required=True)
+    product = fields.Many2One('product.product', 'Product', required=True)
     unit_digits = fields.Function(fields.Integer('Unit Digits'),
         'on_change_with_unit_digits')
     quantity = fields.Float('Quantity',
@@ -56,27 +52,42 @@ class ExtraProductPackaging(ModelSQL, ModelView):
 class Template(metaclass=PoolMeta):
     __name__ = 'product.template'
 
-    density = fields.Float('Density (kg/m3)',
-        digits=(16, Eval('weight_digits', 2)),
-        depends=['weight_digits'])
     bulk_type = fields.Boolean('Bulk')
+    bulk_quantity = fields.Function(fields.Float('Bulk Quantity',
+        help="The amount of bulk stock in the location."),
+        'sum_product')
+
+
+    def sum_product(self, name):
+        if name in ('bulk_quantity'):
+            sum_ = 0.
+            for product in self.products:
+                sum_ += getattr(product, name)
+            return sum_
+        return super().sum_product(name)
+
+
+class Product(metaclass=PoolMeta):
+    __name__ = 'product.product'
+
+    bulk_type = fields.Function(fields.Boolean('Bulk'), 'get_bulk')
     bulk_product = fields.Many2One('product.product', 'Bulk Product',
         domain=[
-            ('bulk_type', '=', True),
+            ('template.bulk_type', '=', True),
             ],
         states= {
             'readonly': (~Eval('active', True) | Eval('bulk_type') == True),
             }, depends=['bulk_type'])
     bulk_quantity = fields.Function(fields.Float('Bulk Quantity',
         help="The amount of bulk stock in the location."),
-        'sum_product')
+        'get_bulk_quantity', searcher='search_bulk_quantity')
     packaging = fields.Boolean('Packaging')
-    packaging_products = fields.One2Many('product.template-product.packaging',
+    packaging_products = fields.One2Many('product.product-product.packaging',
         'product', 'Packaging Products',
         states = {
             'readonly': (~Eval('active', True) | Eval('bulk_type') != True),
             })
-    capacity = fields.Float('Capacity', digits=(16, Eval('capacity_digits', 2)),
+    capacity_pkg = fields.Float('Capacity', digits=(16, Eval('capacity_digits', 2)),
         states={
             'invisible': Eval('type').in_(NON_MEASURABLE),
             },
@@ -105,7 +116,7 @@ class Template(metaclass=PoolMeta):
         depends=['type', 'netweight'])
     netweight_digits = fields.Function(fields.Integer('Net Weight Digits'),
         'on_change_with_netweight_digits')
-    extra_products = fields.One2Many('product.template-extra.product',
+    extra_products = fields.One2Many('product.product-extra.product',
         'product', 'Extra Products',
         states = {
             'readonly': (~Eval('active', True) | Eval('bulk_type') != True),
@@ -113,29 +124,17 @@ class Template(metaclass=PoolMeta):
 
     @classmethod
     def __setup__(cls):
-        super(Template, cls).__setup__()
-        cls._modify_no_move += [
-            ('bulk_type', 'product_bulk.msg_product_bulk_type_has_stock'),
-            ('bulk_product', 'product_bulk.msg_product_bulk_product_has_stock'),
-            ]
+        super().__setup__()
+        # cls._modify_no_move += [
+        #     ('bulk_type', 'product_bulk.msg_product_bulk_type_has_stock'),
+        #     ('bulk_product', 'product_bulk.msg_product_bulk_product_has_stock'),
+        #     ]
         cls._buttons.update({
                 'create_packaging_products': {
                     'invisible': (~Eval('active', True)
                         | Eval('bulk_type') != True)
                 },
             })
-
-    def sum_product(self, name):
-        if name in ('bulk_quantity'):
-            sum_ = 0.
-            for product in self.products:
-                sum_ += getattr(product, name)
-            return sum_
-        return super().sum_product(name)
-
-    @staticmethod
-    def default_density():
-        return 0.
 
     @fields.depends('capacity_uom')
     def on_change_with_capacity_digits(self, name=None):
@@ -163,6 +162,9 @@ class Template(metaclass=PoolMeta):
     def default_netweight_digits():
         return 2
 
+    def get_bulk(self, name=None):
+        return self.template.bulk_type
+
     @classmethod
     @ModelView.button
     def create_packaging_products(cls, products):
@@ -172,7 +174,7 @@ class Template(metaclass=PoolMeta):
         BOMInput = Pool().get('production.bom.input')
         BOMOutput = Pool().get('production.bom.output')
         Uom = Pool().get('product.uom')
-        ProductPackaging = Pool().get('product.template-product.packaging')
+        ProductPackaging = Pool().get('product.product-product.packaging')
         ProductBom = Pool().get('product.product-production.bom')
 
         uom_unit, = Uom.search([('symbol', 'like', 'u')])
@@ -187,18 +189,19 @@ class Template(metaclass=PoolMeta):
                 if package_product.packaged_product:
                     continue
 
-                new_code = ((bulk_product.products[0].code
-                    if bulk_product.products[0].code else '') + '' +
+                new_code = ((bulk_product.code
+                    if bulk_product.code else '') + '' +
                     ('-' + package_product.packaging_product.code if
                     package_product.packaging_product.code else ''))
                 new_name = (bulk_product.name +
                     ' (' + package_product.packaging_product.name + ')')
-
-                netweight = (bulk_product.density *
-                    (package_product.packaging_product.capacity / 1000))
-                weight = (netweight +
+                capacity = package_product.packaging_product.capacity_pkg
+                netweight = round(capacity/ 1000, uom_kg.digits)
+                weight = round(netweight +
                     (package_product.packaging_product.weight
-                    if package_product.packaging_product.weight else 0))
+                    if package_product.packaging_product.weight else 0),
+                        uom_kg.digits)
+
 
                 output_template = Template()
                 output_template.name = new_name
@@ -208,27 +211,20 @@ class Template(metaclass=PoolMeta):
                 output_template.sale_uom = uom_unit
                 output_template.default_uom = uom_unit
                 output_template.list_price = Decimal(0)
-                output_template.netweight = netweight
-                output_template.netweight_uom = uom_kg
                 output_template.weight = weight
                 output_template.weight_uom = uom_kg
-                output_template.unique_variant = True
-                output_template.bulk_product = bulk_product.id
                 output_template.type = bulk_product.type
                 output_template.account_category = bulk_product.account_category
                 output_template.categories = bulk_product.categories
-                output_template.lot_sequence = bulk_product.lot_sequence
-                output_template.lot_required = bulk_product.lot_required
-                output_template.expiration_state = bulk_product.expiration_state
-                output_template.expiration_time = bulk_product.expiration_time
-                output_template.shelf_life_state = bulk_product.shelf_life_state
-                output_template.shelf_life_time = bulk_product.shelf_life_time
-                output_template.capacity = package_product.packaging_product.capacity
                 output_template.save()
 
                 output_product = Product()
                 output_product.code = new_code
                 output_product.template = output_template
+                output_product.capacity_pkg = package_product.packaging_product.capacity
+                output_product.netweight = netweight
+                output_product.netweight_uom = uom_kg
+                output_product.bulk_product = bulk_product.id
                 output_product.save()
 
 
@@ -238,13 +234,13 @@ class Template(metaclass=PoolMeta):
                 bom = Bom(name=new_name)
                 bulk_input = BOMInput(
                     bom=bom,
-                    product=bulk_product.products[0],
+                    product=bulk_product,
                     uom=bulk_product.default_uom,
                     quantity=netweight)
                 inputs.append(bulk_input)
                 package_input = BOMInput(
                     bom=bom,
-                    product=package_product.packaging_product.products[0],
+                    product=package_product.packaging_product,
                     uom=package_product.packaging_product.default_uom,
                     quantity=1.0)
                 inputs.append(package_input)
@@ -253,7 +249,7 @@ class Template(metaclass=PoolMeta):
                     for extra in bulk_product.extra_products:
                         extra_input = BOMInput(
                             bom=bom,
-                            product=extra.extra_product.products[0],
+                            product=extra.extra_product,
                             uom=extra.extra_product.default_uom,
                             quantity=extra.quantity)
                         inputs.append(extra_input)
@@ -278,13 +274,6 @@ class Template(metaclass=PoolMeta):
             ProductPackaging.save(output_to_save)
 
 
-class Product(metaclass=PoolMeta):
-    __name__ = 'product.product'
-
-    bulk_quantity = fields.Function(fields.Float('Bulk Quantity',
-        help="The amount of bulk stock in the location."),
-        'get_bulk_quantity', searcher='search_bulk_quantity')
-
     @classmethod
     def get_bulk_quantity(cls, products, name):
         pool = Pool()
@@ -298,33 +287,33 @@ class Product(metaclass=PoolMeta):
         for product in products:
             res[product.id] = 0
 
-        location_ids = Transaction().context.get('locations')
-        if not location_ids:
-            locations = Location.search(['type', '=', 'warehouse'])
-            location_ids = [x.storage_location.id for x in locations
-                            if x.storage_location]
+        # location_ids = Transaction().context.get('locations')
+        # if not location_ids:
+        #     locations = Location.search(['type', '=', 'warehouse'])
+        #     location_ids = [x.storage_location.id for x in locations
+        #                     if x.storage_location]
 
-        output_products = Product.search([
-                            ('template.bulk_product', 'in', products)
-                            ])
-        output_products_ids = [x.id for x in output_products]
+        # output_products = Product.search([
+        #                     ('bulk_product', 'in', products)
+        #                     ])
+        # output_products_ids = [x.id for x in output_products]
 
-        products_ids += [x.id for x in products]
+        # products_ids += [x.id for x in products]
 
-        with Transaction().set_context(locations=location_ids,
-                    stock_date_end=today,
-                    _check_access=False):
+        # with Transaction().set_context(locations=location_ids,
+        #             stock_date_end=today,
+        #             _check_access=False):
 
-            bulk_quantity = cls._get_quantity(output_products, 'quantity',
-                location_ids, grouping=('product',),
-                grouping_filter=(output_products_ids,))
-            quantity = cls._get_quantity(products, 'quantity', location_ids,
-                grouping=('product',) , grouping_filter=(products_ids,))
+        #     bulk_quantity = cls._get_quantity(output_products, 'quantity',
+        #         location_ids, grouping=('product',),
+        #         grouping_filter=(output_products_ids,))
+        #     quantity = cls._get_quantity(products, 'quantity', location_ids,
+        #         grouping=('product',) , grouping_filter=(products_ids,))
 
-        res.update(quantity)
-        for product in output_products:
-            res[product.bulk_product.id] += (bulk_quantity.get(product.id,0)
-                * product.netweight if product.netweight else 0.0)
+        # res.update(quantity)
+        # for product in output_products:
+        #     res[product.bulk_product.id] += (bulk_quantity.get(product.id,0)
+        #         * product.netweight if product.netweight else 0.0)
         return res
 
     @classmethod
