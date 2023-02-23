@@ -35,10 +35,7 @@ class ExtraProductPackaging(ModelSQL, ModelView):
     "Template - Product Packaging"
     __name__ = 'product.template-extra.product'
     extra_product = fields.Many2One('product.template', 'Extra Product',
-        required=True, ondelete='CASCADE',
-        states = {
-            'readonly': Bool(Eval('packaged_product')),
-            })
+        required=True, ondelete='CASCADE')
     product = fields.Many2One('product.template', 'Product', required=True)
     unit = fields.Function(fields.Many2One('product.uom', 'Unit'),
         'on_change_with_unit')
