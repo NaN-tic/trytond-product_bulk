@@ -231,13 +231,13 @@ class Template(metaclass=PoolMeta):
                 bulk_input = BOMInput(
                     bom=bom,
                     product=bulk_product.products[0],
-                    uom=bulk_product.default_uom,
+                    unit=bulk_product.default_uom,
                     quantity=netweight)
                 inputs.append(bulk_input)
                 package_input = BOMInput(
                     bom=bom,
                     product=package_product.packaging_product.products[0],
-                    uom=package_product.packaging_product.default_uom,
+                    unit=package_product.packaging_product.default_uom,
                     quantity=1.0)
                 inputs.append(package_input)
 
@@ -246,14 +246,14 @@ class Template(metaclass=PoolMeta):
                         extra_input = BOMInput(
                             bom=bom,
                             product=extra.extra_product.products[0],
-                            uom=extra.extra_product.default_uom,
+                            unit=extra.extra_product.default_uom,
                             quantity=extra.quantity)
                         inputs.append(extra_input)
 
                 output = BOMOutput(
                     bom=bom,
                     product=output_product.id,
-                    uom=uom_unit,
+                    unit=uom_unit,
                     quantity=1.0)
 
                 bom.inputs = inputs
