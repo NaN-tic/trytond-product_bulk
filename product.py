@@ -58,7 +58,7 @@ class Template(metaclass=PoolMeta):
             ],
         states= {
             'readonly': (~Eval('active', True) | Eval('bulk_type') == True),
-            }, depends=['bulk_type'])
+            })
     bulk_quantity = fields.Function(fields.Float('Bulk Quantity',
         help="The amount of bulk stock in the location."),
         'sum_product')
