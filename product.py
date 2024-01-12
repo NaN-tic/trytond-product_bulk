@@ -72,14 +72,13 @@ class Template(metaclass=PoolMeta):
         states={
             'invisible': Eval('type').in_(NON_MEASURABLE),
             },
-        depends=['type', 'capacity_digits'])
+        depends=['capacity_digits'])
     capacity_uom = fields.Many2One('product.uom', 'Capacity Uom',
         domain=[('symbol', '=', 'l')],
         states={
             'invisible': Eval('type').in_(NON_MEASURABLE),
             'required': Bool(Eval('capacity')),
-            },
-        depends=['type', 'capacity'])
+            })
     capacity_digits = fields.Function(fields.Integer('Capacity Digits'),
         'on_change_with_capacity_digits')
     netweight = fields.Float('Net Weight',
@@ -87,14 +86,13 @@ class Template(metaclass=PoolMeta):
         states={
             'invisible': Eval('type').in_(NON_MEASURABLE),
             },
-        depends=['type', 'netweight_digits'])
+        depends=['netweight_digits'])
     netweight_uom = fields.Many2One('product.uom', 'Net Weight Uom',
         domain=[('category', '=', Id('product', 'uom_cat_weight'))],
         states={
             'invisible': Eval('type').in_(NON_MEASURABLE),
             'required': Bool(Eval('netweight')),
-            },
-        depends=['type', 'netweight'])
+            })
     netweight_digits = fields.Function(fields.Integer('Net Weight Digits'),
         'on_change_with_netweight_digits')
     extra_products = fields.One2Many('product.template-extra.product',
