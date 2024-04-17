@@ -35,7 +35,7 @@
         <record model="ir.model.button" id="create_packaging_products_button">
             <field name="name">create_packaging_products</field>
             <field name="string">Create packaging products</field>
-            <field name="model" search="[('model', '=', 'product.template')]"/>
+            <field name="model">product.template</field>
         </record>
 
         <record model="ir.ui.view" id="product_bulk_view_list">
@@ -60,14 +60,14 @@
             action="act_product_bulk_stock" icon="tryton-list"/>
 
         <record model="ir.model.access" id="access_product_bulk_stock">
-            <field name="model" search="[('model', '=', 'product.template')]"/>
+            <field name="model">product.template</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_delete" eval="False"/>
         </record>
         <record model="ir.model.access" id="access_product_bulk_stock_admin">
-            <field name="model" search="[('model', '=', 'product.template')]"/>
+            <field name="model">product.template</field>
             <field name="group" ref="product.group_product_admin"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
