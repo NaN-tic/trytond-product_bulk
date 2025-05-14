@@ -57,7 +57,7 @@ class Template(metaclass=PoolMeta):
             ('bulk_type', '=', True),
             ],
         states= {
-            'readonly': Eval('bulk_type') == True,
+            'readonly': Bool(Eval('bulk_type')),
             })
     bulk_quantity = fields.Function(fields.Float('Bulk Quantity',
         help="The amount of bulk stock in the location."),
@@ -66,7 +66,7 @@ class Template(metaclass=PoolMeta):
     packaging_products = fields.One2Many('product.template-product.packaging',
         'product', 'Packaging Products',
         states = {
-            'readonly': Eval('bulk_type') != True,
+            'readonly': ~Bool(Eval('bulk_type')),
             })
     capacity = fields.Float('Capacity', digits=(16, Eval('capacity_digits', 2)),
         states={
@@ -96,10 +96,7 @@ class Template(metaclass=PoolMeta):
     netweight_digits = fields.Function(fields.Integer('Net Weight Digits'),
         'on_change_with_netweight_digits')
     extra_products = fields.One2Many('product.template-extra.product',
-        'product', 'Extra Products',
-        states = {
-            'readonly': Eval('bulk_type') != True,
-            })
+        'product', 'Extra Products')
 
     @classmethod
     def __setup__(cls):
@@ -111,7 +108,7 @@ class Template(metaclass=PoolMeta):
         cls._buttons.update({
                 'create_packaging_products': {
                     'invisible': (~Eval('active', True)
-                        | Eval('bulk_type') != True)
+                        | ~Bool(Eval('bulk_type'))),
                 },
             })
 
