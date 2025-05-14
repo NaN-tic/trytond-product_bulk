@@ -57,7 +57,7 @@ class Template(metaclass=PoolMeta):
             ('bulk_type', '=', True),
             ],
         states= {
-            'readonly': (~Eval('active', True) | Eval('bulk_type') == True),
+            'readonly': Eval('bulk_type') == True,
             })
     bulk_quantity = fields.Function(fields.Float('Bulk Quantity',
         help="The amount of bulk stock in the location."),
@@ -66,7 +66,7 @@ class Template(metaclass=PoolMeta):
     packaging_products = fields.One2Many('product.template-product.packaging',
         'product', 'Packaging Products',
         states = {
-            'readonly': (~Eval('active', True) | Eval('bulk_type') != True),
+            'readonly': Eval('bulk_type') != True,
             })
     capacity = fields.Float('Capacity', digits=(16, Eval('capacity_digits', 2)),
         states={
@@ -98,7 +98,7 @@ class Template(metaclass=PoolMeta):
     extra_products = fields.One2Many('product.template-extra.product',
         'product', 'Extra Products',
         states = {
-            'readonly': (~Eval('active', True) | Eval('bulk_type') != True),
+            'readonly': Eval('bulk_type') != True,
             })
 
     @classmethod
