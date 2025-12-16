@@ -152,15 +152,16 @@ class Template(metaclass=PoolMeta):
 
     @classmethod
     @ModelView.button
-    def create_packaging_products(cls, products):
-        Template = Pool().get('product.template')
-        Product = Pool().get('product.product')
-        Bom = Pool().get('production.bom')
-        BOMInput = Pool().get('production.bom.input')
-        BOMOutput = Pool().get('production.bom.output')
-        Uom = Pool().get('product.uom')
-        ProductPackaging = Pool().get('product.template-product.packaging')
-        ProductBom = Pool().get('product.product-production.bom')
+    def create_packaging_products(cls, templates):
+        pool = Pool()
+        Template = pool.get('product.template')
+        Product = pool.get('product.product')
+        Bom = pool.get('production.bom')
+        BOMInput = pool.get('production.bom.input')
+        BOMOutput = pool.get('production.bom.output')
+        Uom = pool.get('product.uom')
+        ProductPackaging = pool.get('product.template-product.packaging')
+        ProductBom = pool.get('product.product-production.bom')
 
         uom_unit, = Uom.search([('symbol', 'like', 'u')])
         uom_kg, = Uom.search([('symbol', 'like', 'kg')])
@@ -169,13 +170,14 @@ class Template(metaclass=PoolMeta):
         output_to_save = []
         inputs = []
 
-        for bulk_product in products:
+        for bulk_product in templates:
             for package_product in bulk_product.packaging_products:
-                if package_product.packaged_product:
+                if package_product.packaged_product or not bulk_product.products:
                     continue
 
-                new_code = ((bulk_product.products[0].code
-                    if bulk_product.products[0].code else '') + '' +
+                product = bulk_product.products[0]
+
+                new_code = ((product.code if product.code else '') + '' +
                     ('-' + package_product.packaging_product.code if
                     package_product.packaging_product.code else ''))
                 new_name = (bulk_product.name +
@@ -200,7 +202,7 @@ class Template(metaclass=PoolMeta):
                 output_template.weight = weight
                 output_template.weight_uom = uom_kg
                 output_template.unique_variant = True
-                output_template.bulk_product = bulk_product.id
+                output_template.bulk_product = product
                 output_template.type = bulk_product.type
                 output_template.account_category = bulk_product.account_category
                 output_template.categories = bulk_product.categories
